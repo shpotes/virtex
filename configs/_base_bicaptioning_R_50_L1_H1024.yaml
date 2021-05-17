@@ -8,8 +8,8 @@ CUDNN_BENCHMARK: true
 CUDNN_DETERMINISTIC: false
 
 DATA:
-  ROOT: "datasets/coco"
-  TOKENIZER_MODEL: "datasets/vocab/coco_10k.model"
+  ROOT: "datasets/mimic_coco"
+  TOKENIZER_MODEL: "datasets/vocab/mimic_10k.model"
   VOCAB_SIZE: 10000
   UNK_INDEX: 0
   SOS_INDEX: 1
