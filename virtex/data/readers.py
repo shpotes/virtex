@@ -42,15 +42,20 @@ class SimpleCocoCaptionsReader(Dataset):
 
         # Make a tuple of image id and its filename, get image_id from its
         # filename (assuming directory has images with names in COCO2017 format).
-        image_filenames = glob.glob(os.path.join(image_dir, "*.jpg"))
-        self.id_filename: List[Tuple[ImageID, str]] = [
-            (int(os.path.basename(name)[:-4]), name) for name in image_filenames
-        ]
+        #image_filenames = glob.glob(os.path.join(image_dir, "*.jpg"))
+        #self.id_filename: List[Tuple[ImageID, str]] = [
+        #    (int(os.path.basename(name)[:-4]), name) for name in image_filenames
+        #]
 
         # Make a mapping between image_id and its captions.
         _captions = json.load(
             open(os.path.join(root, "annotations", f"captions_{split}2017.json"))
         )
+
+        self.id_filename: List[Tuple[ImageID, str]] = [
+            (img['id'], os.path.join(image_dir, img['file_name'])) for img in _captions['images']
+        ]
+
         self._id_to_captions: Dict[ImageID, Captions] = defaultdict(list)
 
         for ann in _captions["annotations"]:
@@ -62,10 +67,13 @@ class SimpleCocoCaptionsReader(Dataset):
     def __getitem__(self, idx: int):
         image_id, filename = self.id_filename[idx]
 
-        # shape: (height, width, channels), dtype: uint8
-        image = cv2.imread(filename)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        captions = self._id_to_captions[image_id]
+        try:
+            # shape: (height, width, channels), dtype: uint8
+            image = cv2.imread(filename)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            captions = self._id_to_captions[image_id]
+        except:
+            return {"image_id": image_id, 'filename': filename}
 
         return {"image_id": image_id, "image": image, "captions": captions}
 
